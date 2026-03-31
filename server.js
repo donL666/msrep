@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const rateLimit = require('express-rate-limit');
 const db = require('./db');
 
 const app = express();
@@ -8,10 +9,16 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Rate limiting: 200 requests / 15 min for read endpoints, 50 / 15 min for writes
+const readLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false });
+const writeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 50, standardHeaders: true, legacyHeaders: false });
+
+const PRODUCT_COLS = 'id, name, category, sku, price, quantity, description';
+
 // GET /api/products  – list all products (optional ?search= and ?category=)
-app.get('/api/products', (req, res) => {
+app.get('/api/products', readLimiter, (req, res) => {
   const { search = '', category = '' } = req.query;
-  let sql = 'SELECT * FROM products WHERE 1=1';
+  let sql = `SELECT ${PRODUCT_COLS} FROM products WHERE 1=1`;
   const params = [];
 
   if (search) {
@@ -34,7 +41,7 @@ app.get('/api/products', (req, res) => {
 });
 
 // GET /api/categories – distinct category list
-app.get('/api/categories', (_req, res) => {
+app.get('/api/categories', readLimiter, (_req, res) => {
   try {
     const rows = db.prepare('SELECT DISTINCT category FROM products ORDER BY category ASC').all();
     res.json(rows.map(r => r.category));
@@ -44,7 +51,7 @@ app.get('/api/categories', (_req, res) => {
 });
 
 // POST /api/products – add a new product
-app.post('/api/products', (req, res) => {
+app.post('/api/products', writeLimiter, (req, res) => {
   const { name, category, sku, price, quantity, description } = req.body;
 
   if (!name || !category || !sku || price == null || quantity == null) {
@@ -62,7 +69,7 @@ app.post('/api/products', (req, res) => {
       'INSERT INTO products (name, category, sku, price, quantity, description) VALUES (?, ?, ?, ?, ?, ?)'
     );
     const info = stmt.run(name.trim(), category.trim(), sku.trim().toUpperCase(), price, quantity, (description || '').trim());
-    const created = db.prepare('SELECT * FROM products WHERE id = ?').get(info.lastInsertRowid);
+    const created = db.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ?`).get(info.lastInsertRowid);
     res.status(201).json(created);
   } catch (err) {
     if (err.message && err.message.includes('UNIQUE')) {
@@ -73,7 +80,7 @@ app.post('/api/products', (req, res) => {
 });
 
 // PATCH /api/products/:id/quantity – update quantity only
-app.patch('/api/products/:id/quantity', (req, res) => {
+app.patch('/api/products/:id/quantity', writeLimiter, (req, res) => {
   const id = parseInt(req.params.id, 10);
   const { quantity } = req.body;
 
@@ -86,7 +93,7 @@ app.patch('/api/products/:id/quantity', (req, res) => {
     if (info.changes === 0) {
       return res.status(404).json({ error: 'Product not found' });
     }
-    const updated = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+    const updated = db.prepare(`SELECT ${PRODUCT_COLS} FROM products WHERE id = ?`).get(id);
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: 'Failed to update quantity' });
@@ -94,7 +101,7 @@ app.patch('/api/products/:id/quantity', (req, res) => {
 });
 
 // DELETE /api/products/:id – remove a product
-app.delete('/api/products/:id', (req, res) => {
+app.delete('/api/products/:id', writeLimiter, (req, res) => {
   const id = parseInt(req.params.id, 10);
   try {
     const info = db.prepare('DELETE FROM products WHERE id = ?').run(id);

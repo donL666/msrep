@@ -4,12 +4,12 @@
 :root {
   --bg: #f0f2f5;
   --surface: #ffffff;
-  --sidebar-bg: #1a1d2e;
-  --sidebar-text: #c8cad8;
+  --sidebar-bg: #0a0a0a;
+  --sidebar-text: #9ca3af;
   --sidebar-active: #ffffff;
-  --sidebar-accent: #6366f1;
-  --accent: #6366f1;
-  --accent-hover: #4f46e5;
+  --sidebar-accent: #1C69D4;
+  --accent: #1C69D4;
+  --accent-hover: #1455b0;
   --danger: #ef4444;
   --danger-hover: #dc2626;
   --success: #22c55e;
@@ -145,7 +145,7 @@ body {
   transition: border-color var(--transition), box-shadow var(--transition);
   outline: none;
 }
-.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+.search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(28,105,212,.15); }
 
 .select-filter {
   padding: 10px 14px;
@@ -213,9 +213,16 @@ body {
   border-radius: 99px;
   font-size: .72rem;
   font-weight: 600;
-  background: #ede9fe;
-  color: #5b21b6;
+  background: #dbeafe;
+  color: #1e40af;
 }
+/* Per-category badge colours */
+.badge-helmets      { background: #fee2e2; color: #991b1b; }
+.badge-riding-gear  { background: #fef3c7; color: #92400e; }
+.badge-luggage      { background: #d1fae5; color: #065f46; }
+.badge-electronics  { background: #dbeafe; color: #1e40af; }
+.badge-maintenance  { background: #f3f4f6; color: #374151; }
+.badge-protection   { background: #ede9fe; color: #5b21b6; }
 
 .price { font-weight: 600; }
 
@@ -379,7 +386,7 @@ body {
   background: #fff;
 }
 .form-group input:focus,
-.form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+.form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(28,105,212,.15); }
 .form-group input.error { border-color: var(--danger); }
 
 .required { color: var(--danger); }

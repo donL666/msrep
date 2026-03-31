@@ -1,5 +1,5 @@
 {
-  "name": "msrep",
+  "name": "bmw-moto-parts-inventory",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -21,6 +21,7 @@
   "homepage": "https://github.com/donL666/msrep#readme",
   "dependencies": {
     "better-sqlite3": "^12.8.0",
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.2"
   }
 }

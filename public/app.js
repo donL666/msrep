@@ -21,7 +21,21 @@ const statUnits      = document.getElementById('stat-units');
 const statLow        = document.getElementById('stat-low');
 const catDatalist    = document.getElementById('category-list');
 
-// ── Bootstrap ─────────────────────────────────
+// ── Category → badge class mapping ────────────
+const BADGE_CLASS = {
+  'Helmets':      'badge-helmets',
+  'Riding Gear':  'badge-riding-gear',
+  'Luggage':      'badge-luggage',
+  'Electronics':  'badge-electronics',
+  'Maintenance':  'badge-maintenance',
+  'Protection':   'badge-protection',
+};
+
+function badgeClass(category) {
+  return BADGE_CLASS[category] || '';
+}
+
+
 (async () => {
   await Promise.all([loadProducts(), loadCategories()]);
 })();
@@ -58,7 +72,7 @@ async function loadCategories() {
 // ── Rendering ─────────────────────────────────
 function renderTable(products) {
   if (!products.length) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No products found. Try adjusting your search or <button class="btn-link" onclick="openAddModal()">add a new product</button>.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No products found. Try adjusting your search or add a new product.</td></tr>`;
     return;
   }
 
@@ -72,18 +86,18 @@ function renderTable(products) {
         ${p.description ? `<div class="product-desc" title="${escHtml(p.description)}">${escHtml(p.description)}</div>` : ''}
       </td>
       <td><code>${escHtml(p.sku)}</code></td>
-      <td><span class="badge">${escHtml(p.category)}</span></td>
+      <td><span class="badge ${badgeClass(p.category)}">${escHtml(p.category)}</span></td>
       <td class="price">£${Number(p.price).toFixed(2)}</td>
       <td>
         <div class="qty-control">
-          <button class="qty-btn" aria-label="Decrease quantity" onclick="changeQty(${p.id}, ${p.quantity - 1})">−</button>
+          <button class="qty-btn" data-action="decrease" data-id="${p.id}" data-qty="${p.quantity - 1}" aria-label="Decrease quantity">−</button>
           <span class="qty-value ${qtyClass}">${p.quantity}</span>
-          <button class="qty-btn" aria-label="Increase quantity" onclick="changeQty(${p.id}, ${p.quantity + 1})">＋</button>
+          <button class="qty-btn" data-action="increase" data-id="${p.id}" data-qty="${p.quantity + 1}" aria-label="Increase quantity">＋</button>
         </div>
       </td>
       <td class="col-actions">
         <div class="actions-cell">
-          <button class="btn-icon delete" title="Delete product" aria-label="Delete ${escHtml(p.name)}" onclick="confirmDelete(${p.id}, '${escAttr(p.name)}')">🗑️</button>
+          <button class="btn-icon delete" data-action="delete" data-id="${p.id}" data-name="${escHtml(p.name)}" title="Delete product" aria-label="Delete ${escHtml(p.name)}">🗑️</button>
         </div>
       </td>
     </tr>`;
@@ -108,6 +122,22 @@ function populateCategoryFilter(cats) {
 function populateCategoryDatalist(cats) {
   catDatalist.innerHTML = cats.map(c => `<option value="${escHtml(c)}">`).join('');
 }
+
+// ── Table event delegation ────────────────────
+tbody.addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const action = btn.dataset.action;
+  if (action === 'decrease' || action === 'increase') {
+    const id  = parseInt(btn.dataset.id, 10);
+    const qty = parseInt(btn.dataset.qty, 10);
+    if (qty >= 0) changeQty(id, qty);
+  } else if (action === 'delete') {
+    const id   = parseInt(btn.dataset.id, 10);
+    const name = btn.dataset.name;
+    confirmDelete(id, name);
+  }
+});
 
 // ── Quantity Update ───────────────────────────
 async function changeQty(id, newQty) {
@@ -230,10 +260,6 @@ function escHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-}
-
-function escAttr(str) {
-  return String(str).replace(/'/g, "\\'");
 }
 
 // ── Keyboard shortcuts ─────────────────────────
