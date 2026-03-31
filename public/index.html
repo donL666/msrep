@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Manager</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">📦</span>
+      <span class="brand-name">StockFlow</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" id="nav-products">
+        <span class="nav-icon">🏪</span> Products
+      </a>
+    </nav>
+    <div class="sidebar-stats" id="sidebar-stats">
+      <div class="stat-card">
+        <span class="stat-value" id="stat-total">–</span>
+        <span class="stat-label">Total SKUs</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-units">–</span>
+        <span class="stat-label">Total Units</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-value" id="stat-low">–</span>
+        <span class="stat-label">Low Stock</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main">
+    <header class="topbar">
+      <h1 class="page-title">Product Inventory</h1>
+      <button class="btn btn-primary" id="btn-add">
+        <span>＋</span> Add Product
+      </button>
+    </header>
+
+    <!-- Filters -->
+    <div class="toolbar">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="search"
+          class="search-input"
+          placeholder="Search by name, SKU or description…"
+        />
+      </div>
+      <select id="filter-category" class="select-filter">
+        <option value="">All Categories</option>
+      </select>
+    </div>
+
+    <!-- Product Table -->
+    <div class="table-wrapper">
+      <table class="product-table" id="product-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>SKU</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="product-tbody">
+          <tr><td colspan="6" class="empty-state">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Add Product Modal -->
+  <div class="modal-overlay" id="modal-add" aria-modal="true" role="dialog" aria-labelledby="modal-add-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-add-title">Add New Product</h2>
+        <button class="modal-close" id="btn-modal-close" aria-label="Close">✕</button>
+      </div>
+      <form id="form-add" class="modal-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-name">Product Name <span class="required">*</span></label>
+            <input type="text" id="f-name" required placeholder="e.g. Wireless Mouse" />
+          </div>
+          <div class="form-group">
+            <label for="f-sku">SKU <span class="required">*</span></label>
+            <input type="text" id="f-sku" required placeholder="e.g. ELEC-004" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-category">Category <span class="required">*</span></label>
+            <input type="text" id="f-category" required placeholder="e.g. Electronics" list="category-list" />
+            <datalist id="category-list"></datalist>
+          </div>
+          <div class="form-group">
+            <label for="f-price">Price (£) <span class="required">*</span></label>
+            <input type="number" id="f-price" required min="0" step="0.01" placeholder="0.00" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="f-quantity">Quantity <span class="required">*</span></label>
+            <input type="number" id="f-quantity" required min="0" step="1" placeholder="0" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="f-description">Description</label>
+          <textarea id="f-description" rows="3" placeholder="Optional product description…"></textarea>
+        </div>
+        <div class="form-error" id="form-error"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btn-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save">Save Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="modal-delete" aria-modal="true" role="dialog" aria-labelledby="modal-delete-title">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 id="modal-delete-title">Delete Product</h2>
+        <button class="modal-close" id="btn-delete-close" aria-label="Close">✕</button>
+      </div>
+      <p class="modal-body-text">Are you sure you want to delete <strong id="delete-product-name"></strong>? This action cannot be undone.</p>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-delete-cancel">Cancel</button>
+        <button class="btn btn-danger" id="btn-delete-confirm">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
