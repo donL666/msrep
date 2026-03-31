@@ -114,8 +114,10 @@ app.delete('/api/products/:id', writeLimiter, (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Inventory app running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Inventory app running at http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app;
