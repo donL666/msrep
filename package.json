@@ -5,7 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "echo \"No tests configured\" && exit 0"
+    "test": "jest --forceExit"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   },
   "repository": {
     "type": "git",
@@ -23,5 +29,9 @@
     "better-sqlite3": "^12.8.0",
     "express": "^5.2.1",
     "express-rate-limit": "^8.3.2"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
   }
 }

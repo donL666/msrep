@@ -33,3 +33,23 @@ Then open **http://localhost:3000** in your browser.
 
 The app uses a local **SQLite** database (`inventory.db`) which is automatically
 created and seeded with **20 BMW accessory products** on first run.
+
+## Running the Tests
+
+The test suite uses [Jest](https://jestjs.io/) and [Supertest](https://github.com/ladjs/supertest)
+to exercise every REST API endpoint against an in-memory SQLite database, so your
+production `inventory.db` is never affected.
+
+```bash
+npm test
+```
+
+The tests cover:
+
+| Area | What is tested |
+|---|---|
+| `GET /api/products` | List all, search by keyword, filter by category |
+| `GET /api/categories` | Returns the distinct category list |
+| `POST /api/products` | Create a product, duplicate-SKU conflict, missing/invalid fields |
+| `PATCH /api/products/:id/quantity` | Update quantity, negative value rejected, unknown id |
+| `DELETE /api/products/:id` | Delete a product, unknown id returns 404 |
